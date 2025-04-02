@@ -12,7 +12,7 @@ def clean(c):
         docs_task.clean(c)
 
 
-@task(pre=[clean], post=[clean_task.clean_all])
+@task(pre=[clean])
 def build(c):
     """Clean up and build a new distribution. Builds docs if enabled."""
     if bool(c.config.docs.enabled):
@@ -32,9 +32,13 @@ def get_version(c):
         "repo": "Specify:  pypi  for a production release.",
     }
 )
-def upload(c, api_token, repo="testpypi"):
+def upload(c, api_token=None, repo="testpypi", use_cfg=False, verbose=False):
     """Upload build to given PyPI repo"""
-    c.run(f"twine upload --repository {repo} -u __token__ -p {api_token} dist/*")
+    vb = "--verbose" if verbose else ""
+    if use_cfg is True:
+        c.run(f"twine upload --config-file ~/.pypirc --repository {repo} dist/* {vb}")
+    else:
+        c.run(f"twine upload --repository {repo} -u __token__ -p {api_token} dist/* {vb}")
 
 
 @task(help={"dist": "Name of distribution file under dist/ directory to check."})

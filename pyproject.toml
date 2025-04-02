@@ -4,7 +4,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sandwich_tag"
+name = "django-sandwich-tag"
 version = "0.1.0"
 requires-python = ">=3.10, <4.0"
 description = "A django template tag that simplifies nested templates."
@@ -51,8 +51,8 @@ lint = ["flake8", "flake8-bugbear", ]
 build = ["build", "twine", ]
 
 [project.urls]
-Homepage = "https://github.com/jacobtumak/sandwich"
-Repository = "https://github.com/jacobtumak/sandwich"
+Homepage = "https://github.com/jacobtumak/django-sandwich-tag"
+Repository = "https://github.com/jacobtumak/django-sandwich-tag"
 
 
 # Other Tools
@@ -73,8 +73,7 @@ push = true
 [tool.bumpver.file_patterns]
 "pyproject.toml" = ['version = "{version}"']
 "README.md" = ['Version: {version}']
-"sandwich/__init__.py" = ['__version__ = "{version}"']
-"docs/source/conf.py" = ["version = '{version}'", "release = '{version}'"]
+"sandwich_tag/__init__.py" = ['__version__ = "{version}"']
 
 [tool.black]
 target-version = ["py39", "py310", "py311"]
