@@ -14,7 +14,7 @@ The code for these tasks can be found in the `tasks` directory of this project.
 > part of the command using `--`. For example, I could run tests in parallel (using 
 > `pytest-xdist`) with
 > ```bash
-> inv tox.test -- -n logical
+> tox r -e py310 -- -n logical
 > ```
 
 

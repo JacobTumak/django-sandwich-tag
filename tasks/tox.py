@@ -25,7 +25,7 @@ def venv(c, dir_name=".venv", force=False):
     Initialize the development environment for this project.
     """
     if not force and Path(dir_name).exists():
-        choice = input("The directory `.venv` already exists. Would you like to overwrite it? [y/N]")
+        choice = input("The directory `.venv` already exists. Would you like to overwrite it? [y/N]\n")
         if choice.lower() != "y":
             return
     c.run(f"tox d -e dev {dir_name}")

@@ -5,17 +5,17 @@ from . import docs as docs_task
 
 
 @task
-def clean(c, docs=False):
-    """Clean up dist [and docs] directory"""
+def clean(c):
+    """Clean up dist (and docs if enabled) directory"""
     c.run("rm -fr ./dist/*")
-    if docs:
+    if bool(c.config.docs.enabled):
         docs_task.clean(c)
 
 
 @task(pre=[clean], post=[clean_task.clean_all])
-def build(c, docs=False):
-    """Clean up and build a new distribution [and docs]"""
-    if docs:
+def build(c):
+    """Clean up and build a new distribution. Builds docs if enabled."""
+    if bool(c.config.docs.enabled):
         docs_task.build(c)
     c.run("python3 -m build")
 

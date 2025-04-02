@@ -11,9 +11,9 @@ description = "A django template tag that simplifies nested templates."
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-    { name = "Jacob Tumak", email = "jacobtumak@tidal.com" }
+    { name = "Jacob Tumak", email = "jacobtumak@users.noreply.github.com" }
 ]
-keywords = ["sandwich",]
+keywords = ["sandwich", "sandwich_tag", "django-sandwich-tag",]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "License :: OSI Approved :: MIT License",
@@ -26,14 +26,13 @@ dependencies = [
     "django",
 ]
 
-[project.optional-dependencies]
-format = [
-    "black",
-    "isort",
-]
-lint = [
-    "flake8",
-    "flake8-bugbear",
+[dependency-groups]
+dev = [
+    { include-group = "format" },
+    { include-group = "lint" },
+    { include-group = "test" },
+    { include-group = "utils" },
+    { include-group = "build" },
 ]
 test = [
     "pytest",
@@ -47,10 +46,10 @@ utils = [
     "bumpver",
     "pip-tools",
 ]
-build = [
-    "build",
-    "twine",
-]
+format = ["black", "isort", ]
+lint = ["flake8", "flake8-bugbear", ]
+build = ["build", "twine", ]
+
 [project.urls]
 Homepage = "https://github.com/jacobtumak/sandwich"
 Repository = "https://github.com/jacobtumak/sandwich"

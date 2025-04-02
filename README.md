@@ -1,23 +1,13 @@
 # Django Sandwich Tags
 
+**A django template tag that simplifies nested templates.**
 
+---
 [![PyPI Version](https://img.shields.io/pypi/v/sandwich.svg)](https://pypi.python.org/pypi/sandwich)
-[![Tests](https://github.com/jacobtumak/sandwich/actions/workflows/pytest.yaml/badge.svg)](https://github.com/jacobtumak/sandwich/actions/workflows/pytest.yaml)
+[![Tests](https://github.com/jacobtumak/sandwich/actions/workflows/tox.yaml/badge.svg)](https://github.com/jacobtumak/sandwich/actions/workflows/tox.yaml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/jacobtumak/sandwich)
 
-
 Version: 0.1.0
-
-A django template tag that simplifies nested templates.
-
-
-
-
-Django Sandwich Tags is free software distributed under the MIT License.
-
-
-
-# Sandwich Template Tag
 
 ## Overview
 
@@ -97,14 +87,6 @@ Django's template inheritance system is great for structuring large applications
 - If the `template` argument is missing, a `TemplateSyntaxError` is raised.
 - If `template` is provided both as a positional and keyword argument, an error is raised.
 - If `template` is not a string or a `Template` object, an error is raised.
-
-## Running Tests
-
-To ensure the template tag functions correctly, run the Django test suite:
-
-```bash
-pytest
-```
 
 ## License
 
