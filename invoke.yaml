@@ -25,6 +25,7 @@ clean:
       - ".pytest-cache/"
       - "*.py[co]"
       - "*~"
+      - ".artifacts/"
 
   test:
     cleans: test/coverage artifacts
@@ -37,3 +38,8 @@ clean:
     cleans: tox directory
     paths:
       - ".tox/"
+
+act:
+  runners:
+    # more runners found at https://nektosact.com/usage/runners.html
+    ubuntu-latest: catthehacker/ubuntu:act-latest

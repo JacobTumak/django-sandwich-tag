@@ -2,21 +2,21 @@ from invoke import task
 from pathlib import Path
 
 
-@task
-def test(ctx):
+@task(default=True)
+def test(c):
     """Run tests in the test-environment."""
-    ctx.run("tox r -m test")
+    c.run("tox r -m test")
 
 
 @task(aliases=("cov",))
-def coverage(ctx):
-    ctx.run("tox r coverage")
+def coverage(c):
+    c.run("tox r coverage")
 
 
 @task
-def static(ctx):
+def static(c):
     """Run all tox environments with a `static` label"""
-    ctx.run("tox r -m static")
+    c.run("tox r -m static")
 
 
 @task(aliases=("devenv",))

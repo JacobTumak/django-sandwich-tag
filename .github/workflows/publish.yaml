@@ -1,6 +1,9 @@
 name: Publish dist to PyPI and TestPyPI
 
-on: push
+on:
+  push:
+    tags:
+      - '*.*.*'
 
 jobs:
   build:
@@ -32,7 +35,6 @@ jobs:
   publish-to-pypi:
     name: >-
       Publish dist to PyPI
-    if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
     needs:
     - build
     runs-on: ubuntu-latest

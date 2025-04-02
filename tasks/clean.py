@@ -35,7 +35,7 @@ def clean_tox(c):
     clean_files(*get_args(c, "tox"))
 
 
-@task(name="all")
+@task(name="all", default=True)
 def clean_all(c):
     """Remove all build, test, coverage, tox, and Python artifacts"""
     cleaners = [clean_tox, clean_build, clean_cache, clean_test]
