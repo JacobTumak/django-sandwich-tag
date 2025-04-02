@@ -7,7 +7,7 @@
 [![Tests](https://github.com/jacobtumak/sandwich/actions/workflows/tox.yaml/badge.svg)](https://github.com/jacobtumak/sandwich/actions/workflows/tox.yaml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/jacobtumak/sandwich)
 
-Version: 0.1.0
+Version: 0.1.1
 
 ## Overview
 
