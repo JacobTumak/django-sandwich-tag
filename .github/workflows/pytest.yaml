@@ -2,7 +2,7 @@ name: Test with pytest
 
 on:
   push:
-    branches: [ "master", "devel" ]
+    branches: [ "master", "dev" ]
   pull_request:
     types: ["opened", "reopened"]
 
