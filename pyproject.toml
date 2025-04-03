@@ -11,7 +11,7 @@ description = "A django template tag that simplifies nested templates."
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-    { name = "Jacob Tumak", email = "jacobtumak@users.noreply.github.com" }
+    { name = "Jacob Tumak", email = "jtumak.dev@gmail.com" }
 ]
 keywords = ["sandwich", "sandwich_tag", "django-sandwich-tag",]
 classifiers = [
@@ -57,7 +57,7 @@ include = ["sandwich_tag", "sandwich_tag.templatetags"]
 
 [tool.bumpver]
 current_version = "0.1.3"
-version_pattern = "MAJOR.MINOR.PATCH"
+version_pattern = "MAJOR.MINOR.PATCH[-PYTAGNUM]"
 commit_message = "Bump version: {old_version} --> {new_version}"
 commit = true
 tag = true
