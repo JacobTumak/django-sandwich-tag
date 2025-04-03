@@ -30,6 +30,7 @@ def get_version(c):
     help={
         "api-token": "Obtain an API key from https://pypi.org/manage/account/",
         "repo": "Specify:  pypi  for a production release.",
+        "use_cfg": "Whether to use the ~/.pypirc configuration file for credentials.",
     }
 )
 def upload(c, api_token=None, repo="testpypi", use_cfg=False, verbose=False):
@@ -49,21 +50,23 @@ def check(c, dist):
 
 @task(
     pre=[clean],
-    post=[clean_task.clean_all],
+    post=[clean_task.clean_build],
     help={
         "api-token": "Obtain an API key from https://pypi.org/manage/account/",
         "repo": "Specify:  pypi  for a production release.",
+        "use_cfg": "Whether to use the ~/.pypirc configuration file for credentials.",
     },
 )
-def release(c, api_token, repo="testpypi"):
+def release(c, api_token=None, repo="testpypi", use_cfg=False, verbose=False):
     """Build release and upload to PyPI"""
-    print("Fetching version...")
+    print_green = lambda s: print("\033[32m%s\033[0m" % s)
+    print_green("Fetching version...")
     get_version(c)
     if input("Continue? (y/n): ").lower()[0] != "y":
         print("Release aborted.")
         exit(0)
-    print("Building new release...")
+    print_green("Building new release...")
     build(c)
-    print(f"Uploading release to {repo}...")
-    upload(c, repo)
-    print("Success! Your package has been released.")
+    print_green(f"Uploading release to {repo}...")
+    upload(c, api_token=api_token, repo=repo, use_cfg=False, verbose=False)
+    print_green("Success! Your package has been released.\n")
