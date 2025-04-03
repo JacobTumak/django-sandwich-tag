@@ -3,8 +3,8 @@
 **A django template tag that simplifies nested templates.**
 
 ---
-[![PyPI Version](https://img.shields.io/pypi/v/sandwich.svg)](https://pypi.python.org/pypi/sandwich)
-[![Tests](https://github.com/jacobtumak/django-sandwich-tag/.github/workflows/tox.yaml/badge.svg)](https://github.com/jacobtumak/django-sandwich-tag/.github/workflows/tox.yaml)
+[![PyPI Version](https://img.shields.io/pypi/v/django-sandwich-tag.svg)](https://pypi.python.org/pypi/django-sandwich-tag)
+[![Tests](https://github.com/jacobtumak/django-sandwich-tag/.github/workflows/pytest.yaml/badge.svg)](https://github.com/jacobtumak/django-sandwich-tag/.github/workflows/pytest.yaml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/jacobtumak/sandwich)
 
 Version: 0.1.1
