@@ -17,8 +17,19 @@ The `sandwich` template tag is a Django template tag that allows for easy compos
 
 To use the `sandwich` template tag in your Django project, install the package and add it to your Django app's template tag modules.
 
-1. Ensure your Django project is set up and running.
-2. Add the `sandwich_tag` module to one of your installed Django apps.
+1. Install the `sandwich` package from PyPI
+    ```bash
+    $ pip install django-sandwich-tag
+    ```
+
+2. Add `'sandwich_tag'` to `INSTALLED_APPS`:
+    ```python
+    INSTALLED_APPS = [
+        ...,
+        "sandwich_tag",
+           ...,
+    ]
+    ```
 3. Load the template tag in your Django template:
 
 ```django
@@ -88,44 +99,26 @@ Django's template inheritance system is great for structuring large applications
 - If `template` is provided both as a positional and keyword argument, an error is raised.
 - If `template` is not a string or a `Template` object, an error is raised.
 
+Enjoy building templates with `sandwich`! 🥪
+
+---
+
 ## License
 
 This package is released under the MIT License.
 
----
-
-Enjoy building templates with `sandwich`! 🥪
-
-
-
-
-## Quick Start
-
-1. Install the `sandwich` package from PyPI
-    ```bash
-    $ pip install sandwich
-    ```
-
-2. Add `'sandwich'` to `INSTALLED_APPS`:
-    ```python
-    INSTALLED_APPS = [
-        ...,
-        "sandwich",
-           ...,
-    ]
-    ```
    
 ## Get Me Some of That
-* [Source Code](https://github.com/jacobtumak/sandwich)
+* [Source Code](https://github.com/jacobtumak/django-sandwich-tag)
 
-* [Issues](https://github.com/jacobtumak/sandwich/issues)
-* [PyPI](https://pypi.org/project/sandwich)
+* [Issues](https://github.com/jacobtumak/django-sandwich-tag/issues)
+* [PyPI](https://pypi.org/project/django-sandwich-tag)
 
-[MIT License](https://github.com/jacobtumak/sandwich/blob/master/LICENSE)
+[MIT License](https://github.com/jacobtumak/django-sandwich-tag/blob/master/LICENSE)
 
 
 ### Acknowledgments
-This project would be impossible to maintain without the help of our generous [contributors](https://github.com/jacobtumak/sandwich/graphs/contributors)
+This project would be impossible to maintain without the help of our generous [contributors](https://github.com/jacobtumak/django-sandwich-tag/graphs/contributors)
 
 #### Technology Colophon
 
@@ -175,12 +168,4 @@ or run tox environments in parallel using
    $ bumpver show
    ```
 
-
-
-### Build / Deploy Automation
- * [invoke](https://www.pyinvoke.org/)
-   ```bash
-   $ invoke -l
-   ```
- * [GitHub Actions](https://docs.github.com/en/actions) (see [.github/workflows](https://github.com/jacobtumak/sandwich/tree/master/.github/workflows))
- * [GitHub Webhooks](https://docs.github.com/en/webhooks)  (see [settings/hooks](https://github.com/jacobtumak/sandwich/settings/hooks))
+ * [GitHub Actions](https://docs.github.com/en/actions) (see [.github/workflows](https://github.com/jacobtumak/django-sandwich-tag/tree/master/.github/workflows))
