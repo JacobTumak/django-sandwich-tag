@@ -7,7 +7,7 @@
 [![Tests](https://github.com/jacobtumak/django-sandwich-tag/.github/workflows/pytest.yaml/badge.svg)](https://github.com/jacobtumak/django-sandwich-tag/.github/workflows/pytest.yaml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/jacobtumak/sandwich)
 
-Version: 0.1.2
+Version: 0.1.3
 
 ## Overview
 
