@@ -4,7 +4,10 @@
 
 ---
 [![PyPI Version](https://img.shields.io/pypi/v/django-sandwich-tag.svg)](https://pypi.python.org/pypi/django-sandwich-tag)
-[![Tests](https://github.com/jacobtumak/django-sandwich-tag/.github/workflows/pytest.yaml/badge.svg)](https://github.com/jacobtumak/django-sandwich-tag/.github/workflows/pytest.yaml)
+
+[![Tests](https://github.com/jacobtumak/django-sandwich-tag/actions/workflows/pytest.yaml/badge.svg?tag=0.1.3-post0)]
+(https://github.com/jacobtumak/django-sandwich-tag/actions/workflows/pytest.yaml)
+
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/jacobtumak/sandwich)
 
 Version: 0.1.3-post0
@@ -136,10 +139,6 @@ Initialise the development environment using the invoke task
 Or create it with tox directly
    ```bash
    tox d -e dev .venv
-   ```
-Or install the dev requirements with pip
-   ```bash
-   pip install -r reqirements_dev.txt
    ```
 
 ### Tests
