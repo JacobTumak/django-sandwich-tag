@@ -53,7 +53,7 @@ Repository = "https://github.com/jacobtumak/django-sandwich-tag"
 include-package-data = true  # True by default, declarations in MANIFEST.in
 
 [tool.setuptools.packages.find]
-include = ["sandwich_tag", "sandwich_tag.templatetags"]
+include = ["sandwich_tag", "sandwich_tag.*"]
 
 [tool.bumpver]
 current_version = "0.1.3-post0"
@@ -65,7 +65,7 @@ push = true
 
 [tool.bumpver.file_patterns]
 "pyproject.toml" = ['version = "{version}"']
-"README.md" = ['Version: {version}']
+"README.md" = ['Version: {version}', '/badge.svg?tag={version}']
 "sandwich_tag/__init__.py" = ['__version__ = "{version}"']
 
 [tool.black]
