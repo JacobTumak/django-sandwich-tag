@@ -1,11 +1,29 @@
+from typing import TypeAlias
+
 from django import template
 from django.template import Template, Context
 from django.template.base import FilterExpression, Parser, Token
 from django.template.library import Library, parse_bits
-from django.template.loader import get_template
 
 
 register = Library()
+
+
+TemplateSpec: TypeAlias = str | Template
+
+
+def resolve_template_spec(template_spec: TemplateSpec, context: Context) -> Template:
+    match template_spec:
+        case str():
+            if '{{' in template_spec or '{%' in template_spec:
+                return Template(template_spec, engine=context.template.engine)
+            return context.template.engine.get_template(template_spec)
+        case Template():
+            return template_spec
+        case _:
+            raise template.TemplateSyntaxError(
+                f"template param must be a string or a Template object, got {template_spec} instead."
+            )
 
 
 @register.tag(name="sandwich")
@@ -41,7 +59,7 @@ def do_sandwich(parser: Parser, token: Token) -> template.Node:  # do_{tag} foll
         bits=bits,
         params=("template",),  # Note that `params` must be an iterable (not `None`)
         varargs=None,  # use None if no varargs (DONT USE `False` since it's checked as `if varargs is None`)
-        varkw=True,  # accept token_kwargs that aren't in params (like `def func(**token_kwargs)`)
+        varkw='kwargs',  # accept token_kwargs that aren't in params (like `def func(**token_kwargs)`)
         defaults=None,
         kwonly=(),  # kwonly must be an iterable, we don't have any
         kwonly_defaults=None,
@@ -76,16 +94,7 @@ class SandwichNode(template.Node):
 
     def _get_bread_template(self, context: Context) -> Template:
         template_spec = self.filter_expression.resolve(context)
-        match template_spec:
-            case str():
-                template_obj = get_template(template_spec).template
-            case Template():
-                template_obj = template_spec
-            case _:
-                raise template.TemplateSyntaxError(
-                    f"template param must be a string or a Template object, got {template_spec} instead."
-                )
-        return template_obj
+        return resolve_template_spec(template_spec, context)
 
     def _resolve_kwargs(self, context) -> dict:
         return {k: getattr(v, "resolve", lambda c: v)(context) for k, v in self.token_kwargs.items()}
