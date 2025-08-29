@@ -1,20 +1,26 @@
 from functools import wraps
 from inspect import unwrap, getfullargspec
+from copy import copy
+from sandwich_tag.templatetags.sandwich import resolve_template_spec
 
-from django.template import Context
+from django.utils.itercompat import is_iterable
+from django.template.backends.django import Template as BackendTemplate
+from django.template import Context, Template
 from django.template.loader import get_template
-from django.template.library import Library, parse_bits, TagHelperNode
+from django.template.library import Library, parse_bits, TagHelperNode, InclusionNode
 
 register = Library()
+
 
 def get_compile_func(
         func,
         template: str,
         name: str = None,
         takes_context=False,
+        # isolate_bread=False,
+        # isolate_children=False,
         child_var_name='sandwich_fixings'
 ):
-    template = get_template(template)
     function_name = name or func.__name__
     (
         params,
@@ -30,7 +36,6 @@ def get_compile_func(
                                         'if `takes_context` is True')
 
     def compile_func(parser, token):
-
         open_sw_tag, *bits = token.split_contents()
         close_sw_tag = "end" + open_sw_tag
         child_nodelist = parser.parse(parse_until=(close_sw_tag,))
@@ -48,18 +53,26 @@ def get_compile_func(
             takes_context=takes_context,
             name=open_sw_tag,
         )
-        return SandwichTagNode(func, child_nodelist, template, token_args, token_kwargs, child_var_name, takes_context)
+        # return SandwichTagNode(func, child_nodelist, template, token_args, token_kwargs, child_var_name, takes_context)
+        return SandwichTagNode(
+            func, takes_context, token_args, token_kwargs, template, child_nodelist, child_var_name,
+            # isolate_bread,
+            # isolate_children,
+        )
+
     compile_func.__name__ = function_name
     return compile_func
 
 
 def register_sandwich_tag(
         template: str,
-        registry: Library=None,
-        name: str=None,
+        registry: Library = None,
+        name: str = None,
         func=None,
         takes_context=False,
-        child_var_name='sandwich_fixings'
+        child_var_name='sandwich_fixings',
+        # isolate_bread=False,
+        # isolate_children=False,
 ):
     def dec(func):
 
@@ -71,6 +84,8 @@ def register_sandwich_tag(
                 name=name,
                 takes_context=takes_context,
                 child_var_name=child_var_name,
+                # isolate_bread=isolate_bread,
+                # isolate_children=isolate_children,
             )(parser, token)
 
         registry.tag(compile_func.__name__, compile_func)
@@ -86,11 +101,13 @@ def register_sandwich_tag(
 
 def add_sandwich_tag_dec(registry: Library):
     def sandwich_tag(
-        template: str,
-        name: str=None,
-        func=None,
-        takes_context=False,
-        child_var_name='sandwich_fixings'
+            template: str,
+            name: str = None,
+            func=None,
+            takes_context=False,
+            child_var_name='sandwich_fixings',
+            # isolate_bread=False,
+            # isolate_children=False
     ):
         return register_sandwich_tag(
             template=template,
@@ -99,23 +116,71 @@ def add_sandwich_tag_dec(registry: Library):
             func=func,
             takes_context=takes_context,
             child_var_name=child_var_name,
+            # isolate_bread=isolate_bread,
+            # isolate_children=isolate_children,
         )
+
     registry.sandwich_tag = sandwich_tag
     return registry
 
 
-# the wrapped function returns the context to render a sandwich tag
-class SandwichTagNode(TagHelperNode):
-    def __init__(self, func, child_nodelist, template, args, kwargs, child_var_name, takes_context):
-        super().__init__(func, takes_context, args, kwargs)
-        self.child_nodelist = child_nodelist
-        self.template = template
-        self.child_var_name = child_var_name
+def get_and_set_template_from_spec(spec, context, node):
+    t = context.render_context.get(node)
+    if t is None:
+        if isinstance(spec, (Template, BackendTemplate)):
+            t = spec
+        elif isinstance(getattr(spec, "template", None), Template):
+            t = spec.template
+        elif not isinstance(spec, str) and is_iterable(spec):
+            t = context.template.engine.select_template(spec)
+        else:
+            t = context.template.engine.get_template(spec)
+        context.render_context[node] = t
+    return t
 
-    def render(self, context: Context):
-        # Note: if `takes_context` is truthy, any changes made to context in `self.func` will only affect `child_nodelist`
-        with context.push():
-            resolved_args, resolved_kwargs = self.get_resolved_arguments(context)
-            bread_context = self.func(*resolved_args, **resolved_kwargs)
-            bread_context[self.child_var_name] = self.child_nodelist.render(context)
-            return self.template.render(bread_context)
+
+class SandwichTagNode(TagHelperNode):
+    def __init__(
+            self,
+            func,
+            takes_context,
+            args,
+            kwargs,
+            filename,
+            child_nodelist,
+            child_var_name,
+            bread_uses_global_context=False,
+            children_use_global_context=True,
+    ):
+        super().__init__(func, takes_context, args, kwargs)
+        self.filename = filename
+        self.child_nodelist = child_nodelist
+        self.child_var_name = child_var_name
+        self.bread_uses_global_context = bread_uses_global_context
+        self.children_use_global_context = children_use_global_context
+
+    def render(self, context):
+        bread_template = get_and_set_template_from_spec(self.filename, context, self)
+
+        resolved_args, resolved_kwargs = self.get_resolved_arguments(context)
+        _dict = self.func(*resolved_args, **resolved_kwargs)
+        if isinstance(_dict, dict) and self.child_var_name in _dict:
+            child_dict = _dict[self.child_var_name]
+        else:
+            child_dict = {}
+
+        if self.children_use_global_context:
+            with context.push(child_dict):
+                rendered_children = self.child_nodelist.render(context)
+        else:
+
+            rendered_children = self.child_nodelist.render(context)
+
+        if self.bread_uses_global_context:
+            with context.push(_dict):
+                context[self.child_var_name] = rendered_children
+                return bread_template.render(context)
+
+        bread_context = context.new(_dict)
+        bread_context[self.child_var_name] = rendered_children
+        return bread_template.render(bread_context)

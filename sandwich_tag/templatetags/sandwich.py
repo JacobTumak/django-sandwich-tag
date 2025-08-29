@@ -53,12 +53,15 @@ def do_sandwich(parser: Parser, token: Token) -> template.Node:  # do_{tag} foll
     close_sw_tag = "end" + open_sw_tag
     child_nodelist = parser.parse(parse_until=(close_sw_tag,))
     parser.delete_first_token()
-
+    takes_context = False
+    if any(context_arg := [bits.pop(i) for i, arg in enumerate(bits) if arg == 'context']):
+        assert len(context_arg) == 1, "`context` special arg appeared more than once."
+        takes_context = True
     token_args, token_kwargs = parse_bits(
         parser=parser,
         bits=bits,
         params=("template",),  # Note that `params` must be an iterable (not `None`)
-        varargs=None,  # use None if no varargs (DONT USE `False` since it's checked as `if varargs is None`)
+        varargs=["context"],  # use None if no varargs (DONT USE `False` since it's checked as `if varargs is None`)
         varkw='kwargs',  # accept token_kwargs that aren't in params (like `def func(**token_kwargs)`)
         defaults=None,
         kwonly=(),  # kwonly must be an iterable, we don't have any
@@ -70,7 +73,8 @@ def do_sandwich(parser: Parser, token: Token) -> template.Node:  # do_{tag} foll
     )
     # `parent_fe` is the FilterExpression instance that "knows" the name of the parent template
     # Note that a string with no variables or filters is stored in a FilterExpression instance by django
-    if token_args:  # the only token_arg allowed is the `template`
+
+    if token_args:  # the only other token_arg allowed is the `template`
         if "template" in token_kwargs:
             raise template.TemplateSyntaxError(
                 f"{open_sw_tag} tag received template as both positional and keyword argument. "
@@ -79,7 +83,7 @@ def do_sandwich(parser: Parser, token: Token) -> template.Node:  # do_{tag} foll
         bread_spec = token_args[0]
     else:
         bread_spec = token_kwargs.pop("template")
-    return SandwichNode(child_nodelist, bread_spec, token_kwargs)
+    return SandwichNode(child_nodelist, bread_spec, token_kwargs, takes_context)
 
 
 class SandwichNode(template.Node):
@@ -87,10 +91,11 @@ class SandwichNode(template.Node):
 
     child_var_name = "sandwich_fixings"
 
-    def __init__(self, child_nodelist: template.NodeList, filter_expression: FilterExpression, token_kwargs):
+    def __init__(self, child_nodelist: template.NodeList, filter_expression: FilterExpression, token_kwargs, takes_context: bool):
         self.child_nodelist = child_nodelist
         self.filter_expression = filter_expression
         self.token_kwargs = token_kwargs
+        self.takes_context = takes_context
 
     def _get_bread_template(self, context: Context) -> Template:
         template_spec = self.filter_expression.resolve(context)
@@ -99,9 +104,17 @@ class SandwichNode(template.Node):
     def _resolve_kwargs(self, context) -> dict:
         return {k: getattr(v, "resolve", lambda c: v)(context) for k, v in self.token_kwargs.items()}
 
+    def render_bread(self, template, context: Context, rendered_fixings, overrides) -> str:
+        with context.push(overrides):
+            context[self.child_var_name] = rendered_fixings
+            return template.render(context)
+
     def render(self, context: Context):
-        # parent context is any kwargs passed to the sandwich tag, excluding `template` (see `do_sandwich`)
-        bread_context = self._resolve_kwargs(context)
-        bread_template = self._get_bread_template(context)  # use global context to resolve the name of the template
-        bread_context[self.child_var_name] = self.child_nodelist.render(context)
-        return bread_template.render(Context(bread_context))
+        _dict = self._resolve_kwargs(context)
+        template = self._get_bread_template(context)  # use global context to resolve the name of the template
+        rendered_children = self.child_nodelist.render(context)
+        if self.takes_context:
+            print("Using global context")
+            return self.render_bread(template, context, rendered_children, _dict)
+        print("Using local context")
+        return self.render_bread(template, context.new(), rendered_children, _dict)
