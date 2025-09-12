@@ -179,8 +179,7 @@ class SandwichTagNode(TagHelperNode):
             with context.push(child_dict):
                 rendered_children = self.child_nodelist.render(context)
         else:
-
-            rendered_children = self.child_nodelist.render(context)
+            rendered_children = self.child_nodelist.render(context.new(child_dict))
 
         if self.bread_uses_global_context:
             with context.push(_dict):
