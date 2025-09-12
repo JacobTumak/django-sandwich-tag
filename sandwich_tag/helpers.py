@@ -1,25 +1,25 @@
 from functools import wraps
 from inspect import unwrap, getfullargspec
-from copy import copy
-from sandwich_tag.templatetags.sandwich import resolve_template_spec
 
+from django.template import Template
 from django.utils.itercompat import is_iterable
+from django.template.library import Library, parse_bits, TagHelperNode
 from django.template.backends.django import Template as BackendTemplate
-from django.template import Context, Template
-from django.template.loader import get_template
-from django.template.library import Library, parse_bits, TagHelperNode, InclusionNode
 
-register = Library()
 
+DEFAULT_CHILD_VAR_NAME = 'sandwich_fixings'
+DEFAULT_TAKES_CONTEXT = False
+DEFAULT_BREAD_USES_GLOBAL_CONTEXT = False
+DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT = True
 
 def get_compile_func(
         func,
         template: str,
         name: str = None,
-        takes_context=False,
-        # isolate_bread=False,
-        # isolate_children=False,
-        child_var_name='sandwich_fixings'
+        takes_context=DEFAULT_TAKES_CONTEXT,
+        bread_uses_global_context=DEFAULT_BREAD_USES_GLOBAL_CONTEXT,
+        children_use_global_context=DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT,
+        child_var_name=DEFAULT_CHILD_VAR_NAME,
 ):
     function_name = name or func.__name__
     (
@@ -32,8 +32,9 @@ def get_compile_func(
         _,
     ) = getfullargspec(unwrap(func))
     if takes_context:
-        assert params[0] == 'context', ('First param of custom sandwich tag must be context '
-                                        'if `takes_context` is True')
+        assert params[0] == 'context', (
+            'First param of custom sandwich tag must be `context` if `takes_context` is `True`'
+        )
 
     def compile_func(parser, token):
         open_sw_tag, *bits = token.split_contents()
@@ -53,11 +54,16 @@ def get_compile_func(
             takes_context=takes_context,
             name=open_sw_tag,
         )
-        # return SandwichTagNode(func, child_nodelist, template, token_args, token_kwargs, child_var_name, takes_context)
         return SandwichTagNode(
-            func, takes_context, token_args, token_kwargs, template, child_nodelist, child_var_name,
-            # isolate_bread,
-            # isolate_children,
+            func=func,
+            args=token_args,
+            kwargs=token_kwargs,
+            filename=template,
+            child_nodelist=child_nodelist,
+            takes_context=takes_context,
+            child_var_name=child_var_name,
+            bread_uses_global_context=bread_uses_global_context,
+            children_use_global_context=children_use_global_context,
         )
 
     compile_func.__name__ = function_name
@@ -69,10 +75,10 @@ def register_sandwich_tag(
         registry: Library = None,
         name: str = None,
         func=None,
-        takes_context=False,
-        child_var_name='sandwich_fixings',
-        # isolate_bread=False,
-        # isolate_children=False,
+        takes_context=DEFAULT_TAKES_CONTEXT,
+        bread_uses_global_context=DEFAULT_BREAD_USES_GLOBAL_CONTEXT,
+        children_use_global_context=DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT,
+        child_var_name=DEFAULT_CHILD_VAR_NAME,
 ):
     def dec(func):
 
@@ -84,8 +90,8 @@ def register_sandwich_tag(
                 name=name,
                 takes_context=takes_context,
                 child_var_name=child_var_name,
-                # isolate_bread=isolate_bread,
-                # isolate_children=isolate_children,
+                bread_uses_global_context=bread_uses_global_context,
+                children_use_global_context=children_use_global_context,
             )(parser, token)
 
         registry.tag(compile_func.__name__, compile_func)
@@ -104,10 +110,10 @@ def add_sandwich_tag_dec(registry: Library):
             template: str,
             name: str = None,
             func=None,
-            takes_context=False,
-            child_var_name='sandwich_fixings',
-            # isolate_bread=False,
-            # isolate_children=False
+            takes_context=DEFAULT_TAKES_CONTEXT,
+            child_var_name=DEFAULT_CHILD_VAR_NAME,
+            bread_uses_global_context=DEFAULT_BREAD_USES_GLOBAL_CONTEXT,
+            children_use_global_context=DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT,
     ):
         return register_sandwich_tag(
             template=template,
@@ -115,9 +121,9 @@ def add_sandwich_tag_dec(registry: Library):
             name=name,
             func=func,
             takes_context=takes_context,
+            bread_uses_global_context=bread_uses_global_context,
+            children_use_global_context=children_use_global_context,
             child_var_name=child_var_name,
-            # isolate_bread=isolate_bread,
-            # isolate_children=isolate_children,
         )
 
     registry.sandwich_tag = sandwich_tag
@@ -143,14 +149,14 @@ class SandwichTagNode(TagHelperNode):
     def __init__(
             self,
             func,
-            takes_context,
             args,
             kwargs,
             filename,
             child_nodelist,
-            child_var_name,
-            bread_uses_global_context=False,
-            children_use_global_context=True,
+            takes_context=DEFAULT_TAKES_CONTEXT,
+            bread_uses_global_context=DEFAULT_BREAD_USES_GLOBAL_CONTEXT,
+            children_use_global_context=DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT,
+            child_var_name=DEFAULT_CHILD_VAR_NAME,
     ):
         super().__init__(func, takes_context, args, kwargs)
         self.filename = filename
