@@ -114,7 +114,5 @@ class SandwichNode(template.Node):
         template = self._get_bread_template(context)  # use global context to resolve the name of the template
         rendered_children = self.child_nodelist.render(context)
         if self.takes_context:
-            print("Using global context")
             return self.render_bread(template, context, rendered_children, _dict)
-        print("Using local context")
         return self.render_bread(template, context.new(), rendered_children, _dict)
