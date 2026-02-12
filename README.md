@@ -3,9 +3,9 @@
 **A django template tag that simplifies nested templates.**
 
 ---
-[![PyPI Version](https://img.shields.io/pypi/v/django-sandwich-tag.svg)](https://pypi.python.org/pypi/django-sandwich-tag) ![Tests](https://github.com/jacobtumak/django-sandwich-tag/actions/workflows/pytest.yaml/badge.svg?tag=0.2.1) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/jacobtumak/sandwich)
+[![PyPI Version](https://img.shields.io/pypi/v/django-sandwich-tag.svg)](https://pypi.python.org/pypi/django-sandwich-tag) ![Tests](https://github.com/jacobtumak/django-sandwich-tag/actions/workflows/pytest.yaml/badge.svg?tag=0.2.2) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/jacobtumak/sandwich)
 
-Version: 0.2.1
+Version: 0.2.2
 
 ## Overview
 
