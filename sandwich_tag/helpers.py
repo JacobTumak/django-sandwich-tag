@@ -1,25 +1,25 @@
 from functools import wraps
-from inspect import unwrap, getfullargspec
+from inspect import getfullargspec, unwrap
 
 from django.template import Template
-from django.utils.itercompat import is_iterable
-from django.template.library import Library, parse_bits, TagHelperNode
 from django.template.backends.django import Template as BackendTemplate
+from django.template.library import Library, TagHelperNode, parse_bits
+from django.utils.itercompat import is_iterable
 
-
-DEFAULT_CHILD_VAR_NAME = 'sandwich_fixings'
+DEFAULT_CHILD_VAR_NAME = "sandwich_fixings"
 DEFAULT_TAKES_CONTEXT = False
 DEFAULT_BREAD_USES_GLOBAL_CONTEXT = False
 DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT = True
 
+
 def get_compile_func(
-        func,
-        template: str,
-        name: str = None,
-        takes_context=DEFAULT_TAKES_CONTEXT,
-        bread_uses_global_context=DEFAULT_BREAD_USES_GLOBAL_CONTEXT,
-        children_use_global_context=DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT,
-        child_var_name=DEFAULT_CHILD_VAR_NAME,
+    func,
+    template: str,
+    name: str = None,
+    takes_context=DEFAULT_TAKES_CONTEXT,
+    bread_uses_global_context=DEFAULT_BREAD_USES_GLOBAL_CONTEXT,
+    children_use_global_context=DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT,
+    child_var_name=DEFAULT_CHILD_VAR_NAME,
 ):
     function_name = name or func.__name__
     (
@@ -32,9 +32,9 @@ def get_compile_func(
         _,
     ) = getfullargspec(unwrap(func))
     if takes_context:
-        assert params[0] == 'context', (
-            'First param of custom sandwich tag must be `context` if `takes_context` is `True`'
-        )
+        assert (
+            params[0] == "context"
+        ), "First param of custom sandwich tag must be `context` if `takes_context` is `True`"
 
     def compile_func(parser, token):
         open_sw_tag, *bits = token.split_contents()
@@ -71,14 +71,14 @@ def get_compile_func(
 
 
 def register_sandwich_tag(
-        template: str,
-        registry: Library = None,
-        name: str = None,
-        func=None,
-        takes_context=DEFAULT_TAKES_CONTEXT,
-        bread_uses_global_context=DEFAULT_BREAD_USES_GLOBAL_CONTEXT,
-        children_use_global_context=DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT,
-        child_var_name=DEFAULT_CHILD_VAR_NAME,
+    template: str,
+    registry: Library = None,
+    name: str = None,
+    func=None,
+    takes_context=DEFAULT_TAKES_CONTEXT,
+    bread_uses_global_context=DEFAULT_BREAD_USES_GLOBAL_CONTEXT,
+    children_use_global_context=DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT,
+    child_var_name=DEFAULT_CHILD_VAR_NAME,
 ):
     def dec(func):
 
@@ -107,13 +107,13 @@ def register_sandwich_tag(
 
 def add_sandwich_tag_dec(registry: Library):
     def sandwich_tag(
-            template: str,
-            name: str = None,
-            func=None,
-            takes_context=DEFAULT_TAKES_CONTEXT,
-            child_var_name=DEFAULT_CHILD_VAR_NAME,
-            bread_uses_global_context=DEFAULT_BREAD_USES_GLOBAL_CONTEXT,
-            children_use_global_context=DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT,
+        template: str,
+        name: str = None,
+        func=None,
+        takes_context=DEFAULT_TAKES_CONTEXT,
+        child_var_name=DEFAULT_CHILD_VAR_NAME,
+        bread_uses_global_context=DEFAULT_BREAD_USES_GLOBAL_CONTEXT,
+        children_use_global_context=DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT,
     ):
         return register_sandwich_tag(
             template=template,
@@ -147,16 +147,16 @@ def get_and_set_template_from_spec(spec, context, node):
 
 class SandwichTagNode(TagHelperNode):
     def __init__(
-            self,
-            func,
-            args,
-            kwargs,
-            filename,
-            child_nodelist,
-            takes_context=DEFAULT_TAKES_CONTEXT,
-            bread_uses_global_context=DEFAULT_BREAD_USES_GLOBAL_CONTEXT,
-            children_use_global_context=DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT,
-            child_var_name=DEFAULT_CHILD_VAR_NAME,
+        self,
+        func,
+        args,
+        kwargs,
+        filename,
+        child_nodelist,
+        takes_context=DEFAULT_TAKES_CONTEXT,
+        bread_uses_global_context=DEFAULT_BREAD_USES_GLOBAL_CONTEXT,
+        children_use_global_context=DEFAULT_CHILDREN_USE_GLOBAL_CONTEXT,
+        child_var_name=DEFAULT_CHILD_VAR_NAME,
     ):
         super().__init__(func, takes_context, args, kwargs)
         self.filename = filename

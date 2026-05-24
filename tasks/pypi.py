@@ -39,7 +39,9 @@ def upload(c, api_token=None, repo="testpypi", use_cfg=False, verbose=False):
     if use_cfg is True:
         c.run(f"twine upload --config-file ~/.pypirc --repository {repo} dist/* {vb}")
     else:
-        c.run(f"twine upload --repository {repo} -u __token__ -p {api_token} dist/* {vb}")
+        c.run(
+            f"twine upload --repository {repo} -u __token__ -p {api_token} dist/* {vb}"
+        )
 
 
 @task(help={"dist": "Name of distribution file under dist/ directory to check."})
