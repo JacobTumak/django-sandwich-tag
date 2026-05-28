@@ -2,9 +2,7 @@ name: Test with pytest
 
 on:
   push:
-    branches: [ "main", "dev" ]
-  pull_request:
-    types: ["opened", "reopened"]
+    branches: [ "dev" ]
 
 jobs:
   pytest:
