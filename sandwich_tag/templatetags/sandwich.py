@@ -1,13 +1,11 @@
 from typing import TypeAlias
 
 from django import template
-from django.template import Template, Context
+from django.template import Context, Template
 from django.template.base import FilterExpression, Parser, Token
 from django.template.library import Library, parse_bits
 
-
 register = Library()
-
 
 TemplateSpec: TypeAlias = str | Template
 
@@ -15,7 +13,7 @@ TemplateSpec: TypeAlias = str | Template
 def resolve_template_spec(template_spec: TemplateSpec, context: Context) -> Template:
     match template_spec:
         case str():
-            if '{{' in template_spec or '{%' in template_spec:
+            if "{{" in template_spec or "{%" in template_spec:
                 return Template(template_spec, engine=context.template.engine)
             return context.template.engine.get_template(template_spec)
         case Template():
@@ -27,7 +25,9 @@ def resolve_template_spec(template_spec: TemplateSpec, context: Context) -> Temp
 
 
 @register.tag(name="sandwich")
-def do_sandwich(parser: Parser, token: Token) -> template.Node:  # do_{tag} follows djangos convention
+def do_sandwich(
+    parser: Parser, token: Token
+) -> template.Node:  # do_{tag} follows djangos convention
     """
     Processes the `sandwich` template tag, which wraps child content in a parent template.
 
@@ -54,15 +54,19 @@ def do_sandwich(parser: Parser, token: Token) -> template.Node:  # do_{tag} foll
     child_nodelist = parser.parse(parse_until=(close_sw_tag,))
     parser.delete_first_token()
     takes_context = False
-    if any(context_arg := [bits.pop(i) for i, arg in enumerate(bits) if arg == 'context']):
+    if any(
+        context_arg := [bits.pop(i) for i, arg in enumerate(bits) if arg == "context"]
+    ):
         assert len(context_arg) == 1, "`context` special arg appeared more than once."
         takes_context = True
     token_args, token_kwargs = parse_bits(
         parser=parser,
         bits=bits,
         params=("template",),  # Note that `params` must be an iterable (not `None`)
-        varargs=["context"],  # use None if no varargs (DONT USE `False` since it's checked as `if varargs is None`)
-        varkw='kwargs',  # accept token_kwargs that aren't in params (like `def func(**token_kwargs)`)
+        varargs=[
+            "context"
+        ],  # use None if no varargs (DONT USE `False` since it's checked as `if varargs is None`)
+        varkw="kwargs",  # accept token_kwargs that aren't in params (like `def func(**token_kwargs)`)
         defaults=None,
         kwonly=(),  # kwonly must be an iterable, we don't have any
         kwonly_defaults=None,
@@ -91,7 +95,13 @@ class SandwichNode(template.Node):
 
     child_var_name = "sandwich_fixings"
 
-    def __init__(self, child_nodelist: template.NodeList, filter_expression: FilterExpression, token_kwargs, takes_context: bool):
+    def __init__(
+        self,
+        child_nodelist: template.NodeList,
+        filter_expression: FilterExpression,
+        token_kwargs,
+        takes_context: bool,
+    ):
         self.child_nodelist = child_nodelist
         self.filter_expression = filter_expression
         self.token_kwargs = token_kwargs
@@ -102,16 +112,23 @@ class SandwichNode(template.Node):
         return resolve_template_spec(template_spec, context)
 
     def _resolve_kwargs(self, context) -> dict:
-        return {k: getattr(v, "resolve", lambda c: v)(context) for k, v in self.token_kwargs.items()}
+        return {
+            k: v.resolve(context) if hasattr(v, "resolve") else v
+            for k, v in self.token_kwargs.items()
+        }
 
-    def render_bread(self, template, context: Context, rendered_fixings, overrides) -> str:
+    def render_bread(
+        self, template, context: Context, rendered_fixings, overrides
+    ) -> str:
         with context.push(overrides):
             context[self.child_var_name] = rendered_fixings
             return template.render(context)
 
     def render(self, context: Context):
         _dict = self._resolve_kwargs(context)
-        template = self._get_bread_template(context)  # use global context to resolve the name of the template
+        template = self._get_bread_template(
+            context
+        )  # use global context to resolve the name of the template
         rendered_children = self.child_nodelist.render(context)
         if self.takes_context:
             return self.render_bread(template, context, rendered_children, _dict)

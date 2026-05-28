@@ -8,10 +8,12 @@ def require_docs_enabled(c):
         case False:
             print(
                 "This task requires `docs.enabled` to be set to `True`.",
-                "To enable this task, set `docs.enabled: True` in your invoke.yaml file"
+                "To enable this task, set `docs.enabled: True` in your invoke.yaml file",
             )
         case _:
-            print(f"Invalid value for `docs.enabled`.\nExpected `True` or `False`, got: {c.config.docs.enabled}")
+            print(
+                f"Invalid value for `docs.enabled`.\nExpected `True` or `False`, got: {c.config.docs.enabled}"
+            )
     print("Exiting with exit code 1")
     exit(1)
 
